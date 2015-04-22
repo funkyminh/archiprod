@@ -1,0 +1,17 @@
+{% extends "admin/feincms/tree_editor.html" %}
+{% load i18n admin_static admin_list %}
+{% load admin_urls %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block object-tools-items %}
+
+    <li>
+        <a href="{% url 'admin:event-tree' 2014 %}{% if is_popup %}?_popup=1{% endif %}" class="addlink">
+            {% trans "Event tree" %}
+        </a>
+    </li>
+    {{ block.super }}
+
+{% endblock %}

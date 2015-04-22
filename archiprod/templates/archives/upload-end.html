@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Upload media" %} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div id="main" class="container {% if home %}archiprod-home{% endif %}">
+<h2>{% trans "Upload media" %} </h2>
+<p>
+{% trans 'Thanks for uploading a media to our server. You will be notified when it will be processed by the administrators.' %}
+</p>
+<p>
+<a href="{% url 'upload' %}">{% trans 'Upload another media' %}</a>
+</p>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% load i18n %}
+
+{% if not in_situ and media.confidentiality == '1' %}
+
+{% trans "This media is available only inside Ircam library." %}
+
+{% else %}
+
+{% if type = 'video_extern' %}
+<div class="alert">
+	! "extern new archiprod video" => only available in Chrome or Safari.
+</div>
+<video src="{{ url }}" width="100%" controls>
+</video>
+{% endif %}
+
+{% if type = 'audio_extern' %}
+<div class="alert">
+! "extern new archiprod audio" => only available in Chrome or Safari.
+<br />
+	<a href="{{ url }}" target="_blank">Audio download link ({{ url }})</a>
+<br />
+<audio src="{{ url }}" controls ></audio>
+</div>
+{% endif %}
+
+{% if type = 'new_archiprod_media' %}
+	{% if media.media_type = 'video' %}
+	<video width="100%" controls data-title="{{ media }}">
+	  <source src="http://{{ site }}{{ media.file_ext }}.webm" type="video/webm" />
+	  <source src="http://{{ site }}{{ media.file_ext }}.mp4" type="video/mp4" />
+	  <source src="http://{{ site }}{{ media.file_ext }}.ogg" type="video/ogg" />
+	</video>
+	{% endif %}
+	{% if media.media_type = 'audio' %}
+		{% if in_situ %}
+		<audio controls data-title="{{ media }}">
+		  <source src="http://{{ site }}{{ media.file_int }}.mp3" type="audio/mp4" />
+		  <source src="http://{{ site }}{{ media.file_int }}.ogg" type="audio/ogg" />
+		</audio>
+		{% else %}
+		<audio controls data-title="{{ media }}">
+		  <source src="http://{{ site }}{{ media.file_ext }}.mp3" type="audio/mp4" />
+		  <source src="http://{{ site }}{{ media.file_ext }}.ogg" type="audio/ogg" />
+		</audio>
+		{% endif %}
+	{% endif %}
+{% endif %}
+
+{% endif %}

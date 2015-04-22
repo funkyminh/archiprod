@@ -1,0 +1,81 @@
+{% extends "admin/feincms/tree_editor.html" %}
+{% load mptt_tags %}
+
+{% block content %}
+
+{% for year in years %}
+
+    <a href="{% url 'admin:event-tree' year %}">{{ year }}</a>
+
+{% endfor %}
+
+<h2>{{ current_year }}</h2>
+
+{% comment %}
+
+Below: VERY UGLY test condition. I need to pass all the tree of events,
+and then test if root node and current date or not root node for each. If not, there's a problem of tree consistency.
+
+{% endcomment %}
+
+<ul class="root">
+    {% recursetree events %}
+        {% if node.is_root_node and current_year == node.date_start|date:'Y' %}
+        <li>
+            Event: <a href="{% url 'admin:events_event_change' node.id %}">{{ node }}</a>
+
+            {% if node.archive_set.all %}
+            <ul>
+                {% for archive in node.archive_set.all %}
+                    <li><i>Archive: <a href="{% url 'admin:archives_archive_change' archive.id %}">{{ archive }}</a> {{ archive.set }}</i>
+                    {% if archive.media_set.all %}
+                    <ul>
+                    {% for media in archive.media_set.all %}
+                        <li>Media: <a href="{% url 'admin:archives_media_change' media.id %}">{{ media }}</a></li>
+                    {% endfor %}
+                    </ul>
+                    {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            {% if not node.is_leaf_node %}
+                <ul>
+                  {{ children }}
+                </ul>
+            {% endif %}
+        </li>
+        {% else %}
+            {% if node.is_root_node %}
+            {% else %}
+        <li>
+            Event: <a href="{% url 'admin:events_event_change' node.id %}">{{ node }}</a>
+            {% if node.archive_set.all %}
+            <ul>
+                {% for archive in node.archive_set.all %}
+                    <li><i>Archive: <a href="{% url 'admin:archives_archive_change' archive.id %}">{{ archive }}</a> {{ archive.set }}</i>
+                    {% if archive.media_set.all %}
+                    <ul>
+                    {% for media in archive.media_set.all %}
+                        <li>Media: <a href="{% url 'admin:archives_media_change' media.id %}">{{ media }}</a></li>
+                    {% endfor %}
+                    </ul>
+                    {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            {% if not node.is_leaf_node %}
+                <ul>
+                  {{ children }}
+                </ul>
+            {% endif %}
+        </li>
+            {% endif %}
+        {% endif %}
+    {% endrecursetree %}
+</ul>
+
+{% endblock %}

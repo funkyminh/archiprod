@@ -1,0 +1,30 @@
+{% extends "ressources/base.html" %}
+{% load i18n compress %}
+
+{% block head %}
+  {% compress css %}
+  	<link type="text/less" rel="stylesheet" href="{{ STATIC_URL }}less/archiprod.less" />
+  {% endcompress %}
+{% endblock %}
+
+{% block archiprod_url %}{% url 'home' %}{% endblock %}
+{% block brahms_url %}http://brahms.ircam.fr{% endblock %}
+{% block repertoire_url %}http://brahms.ircam.fr/repertoire{% endblock %}
+{% block catalogue_url %}http://ressources.ircam.fr/catalogue.html{% endblock %}
+{% block articles_url %}http://ressources.ircam.fr/architextes.html{% endblock %}
+
+
+{% block content %}
+<div id="main" class="container {% if home %}archiprod-home{% endif %}">
+	<form class="form-search" method="get" action="{% url 'haystack_search' %}">
+		<div class="input-group">
+			{{ form }}
+			<span class="input-group-btn">
+				<button class="btn btn-default" type="button"><i class="glyphicon glyphicon-search"></i></button>
+			</span>
+		</div>
+	</form>
+	{% block inside-content %}
+	{% endblock %}
+</div>
+{% endblock %}

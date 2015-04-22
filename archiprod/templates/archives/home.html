@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Audio/Video" %} - {{ block.super }}{% endblock %}
+
+{% block inside-content %}
+
+<br />
+
+<div class="row">
+	{% for media in medias %}
+	<div class="col-md-6">
+		{% include "archives/home_block.html" with media=media %}
+	</div>
+	{% if forloop.counter == 2 %}
+	</div>
+	<div class="row">
+	{% endif %}
+	{% endfor %}
+</div>
+
+{% endblock %}

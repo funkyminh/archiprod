@@ -1,0 +1,29 @@
+{% extends "admin/change_form.html" %}
+{% load admin_urls %}
+
+{% block after_related_objects %}
+
+<h2>Linked Archives</h2>
+
+<ul>
+{% for archive in archives %}
+<li><a href="{% url 'admin:archives_archive_change' archive.pk %}">{{ archive }} {{ archive.title }}</a></li>
+{% endfor %}
+</ul>
+
+<h2>Linked Medias</h2>
+
+<ul>
+{% for media in medias %}
+<li><a href="{% url 'admin:archives_media_change' media.pk %}">{{ media }} {{ media.title }}</a></li>
+{% endfor %}
+</ul>
+
+<h2>Linked ProgramNotes</h2>
+
+<ul>
+{% for programnote in programnotes %}
+<li><a href="{% url 'admin:events_programnote_change' programnote.pk %}">{{ programnote }} {{ programnote.title }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

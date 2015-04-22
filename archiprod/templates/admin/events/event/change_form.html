@@ -1,0 +1,31 @@
+{% extends "admin/change_form.html" %}
+{% load admin_urls mptt_tags %}
+
+{% block after_related_objects %}
+
+{% if original %}
+
+<h2>Related Events</h2>
+
+{% drilldown_tree_for_node original as drilldown %}
+{% for node,structure in drilldown|tree_info %}
+    {% if structure.new_level %}<ul><li>{% else %}</li><li>{% endif %}
+    {% ifequal node original %}
+        <strong>{{ node }}</strong>
+    {% else %}
+        <a href="{% url 'admin:events_event_change' node.id %}">{{ node }}</a>
+    {% endifequal %}
+    {% for level in structure.closed_levels %}</li></ul>{% endfor %}
+{% endfor %}
+
+{% endif %}
+
+
+<h2>Linked Archives</h2>
+
+<ul>
+{% for archive in archives %}
+<li><a href="{% url 'admin:archives_archive_change' archive.pk %}">{{ archive }} {{ archive.title }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

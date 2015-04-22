@@ -1,0 +1,2 @@
+http://github.com/ouhouhsami/python-video-converter/tarball/master#egg=VideoConverter
+http://forge.ircam.fr/p/django-ressources/downloads/get/django-ressources-0.0.4.zip

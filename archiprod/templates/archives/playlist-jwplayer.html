@@ -1,0 +1,16 @@
+<rss version="2.0" xmlns:jwplayer="http://rss.jwpcdn.com/">
+<channel>
+{% for media in medias %}
+  <item>
+    <title>{{ media.title }}</title>
+    <description>{{ media.summary }}</description>
+    <jwplayer:image></jwplayer:image>
+    {% if media.media_type == 'video' %}
+    <jwplayer:source file="http://medias.ircam.fr{{ media.internet_urls.0 }}" />
+    {% else %}
+    <jwplayer:source file="http://medias.ircam.fr{{ media.internet_urls.1 }}" />
+    {% endif %}
+  </item>
+{% endfor %}
+</channel>
+</rss>

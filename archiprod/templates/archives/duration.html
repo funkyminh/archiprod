@@ -1,0 +1,9 @@
+{% if duration %}
+<span class="label label-default">
+  {% if duration.hour %}
+    {{ duration|time:"H:i:s" }}
+  {% else %}
+    {{ duration|time:"i:s" }}
+  {% endif %}
+</span>
+{% endif %}

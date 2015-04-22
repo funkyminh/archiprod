@@ -1,0 +1,13 @@
+{% extends "admin/change_form.html" %}
+{% load admin_urls %}
+
+{% block after_related_objects %}
+
+<h2>Linked Medias</h2>
+<ul>
+{% for media in medias %}
+<li><a href="{% url 'admin:archives_media_change' media.pk %}">{{ media }}</a></li>
+{% endfor %}
+<li><a href="{% url 'admin:archives_media_add' %}?archive={{ original.id }}">Add media</a></li>
+</ul>
+{% endblock %}

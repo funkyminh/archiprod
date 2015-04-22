@@ -1,0 +1,24 @@
+{% if object.title %}{{ object.title }} {% endif %}
+{% if object.summary %}{{ object.summary }} {% endif %}
+{% if object.comments %}{{ object.comments }} {% endif %}
+{% for tag in object.archive.tags.all %}{{ tag }} {% endfor %}
+{% for composer in object.work.composers.all %}{{ composer }} {% endfor %}
+{% for participant in object.participant_set.all %}{{ participant }} {% endfor %}
+{% for participant in object.archive.archiveparticipant_set.all %}{{ participant }} {% endfor %}
+{% for programnotes in object.archive.event.programnote_set.all %}
+	{% for programnote in programnotes.all %}
+		{% for participant in programnote.participants.all %}
+			{{ participant }}
+		{% endfor %}
+	{% endfor %}
+{% endfor %}
+{% if object.work.title %}{{ object.work.title }} {% endif %}
+{% if object.archive.event.title %}{{ object.archive.event.title }} {% endif %}
+{% if object.archive.event.subtitle %}{{ object.archive.event.subtitle }} {% endif %}
+{% if object.archive.event.event_type %}{{ object.archive.event.event_type.get_ancestors.0.label }}{% endif %}
+{% if object.archive.title %}{{ object.archive.title }} {% endif %}
+{% if object.archive.subtitle %}{{ object.archive.subtitle }} {% endif %}
+{% if object.archive.comments %}{{ object.archive.comments }} {% endif %}
+{% if object.archive.date %}{{ object.archive.date.year }} {% endif %}
+{% if object.archive.set.label %}{{ object.archive.set.label }} {% endif %}
+{% if object.archive.place.name %}{{ object.archive.place.name }} {% endif %}

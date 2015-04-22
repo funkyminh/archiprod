@@ -1,0 +1,13 @@
+{% extends "admin/change_form.html" %}
+{% load admin_urls %}
+
+{% block after_related_objects %}
+
+<h2>Linked Events</h2>
+
+<ul>
+{% for event in events %}
+<li><a href="{% url 'admin:events_event_change' event.pk %}">{{ event }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

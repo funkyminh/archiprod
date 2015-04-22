@@ -1,0 +1,31 @@
+<ul class="pagination">
+{% if cl.has_previous %}
+<li>
+	<a href="?q={{ cl.query }}{% if cl.filters_query_string %}&{{ cl.filters_query_string }}{% endif %}&page={{ cl.previous_page_number }}">
+		&laquo;
+	</a>
+</li>
+{% else %}
+<li class="disabled"><a>&laquo;</a></li>
+{% endif %}
+
+{% for i in page_range %}
+{% if i == '.' %}
+<li class="disabled"><a>...</a></li>
+{% else %}
+<li {% if i|add:'1' == cl.page_num %}class="active"{% endif %}>
+	<a href="?q={{ cl.query }}{% if cl.filters_query_string %}&{{ cl.filters_query_string }}{% endif %}&page={{ i|add:'1' }}">{{ i|add:'1' }}</a>
+</li>
+{% endif %}
+{% endfor %}
+
+{% if cl.has_next %}
+<li>
+	<a href="?q={{ cl.query }}{% if cl.filters_query_string %}&{{ cl.filters_query_string }}{% endif %}&page={{ cl.next_page_number }}">
+		&raquo;
+	</a>
+</li>
+{% else %}
+<li class="disabled"><a>&raquo;</a></li>
+{% endif %}
+</ul>

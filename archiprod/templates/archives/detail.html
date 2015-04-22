@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% load i18n ressources_extras media_player mptt_tags %}
+
+{% block title %}{{ media|striptags }} - {{ block.super }}{% endblock %}
+
+{% block inside-content %}
+
+<div class="page-header">
+  <h2>{{ media }} {% include "archives/duration.html" with duration=media.duration only %}</h2>
+</div>
+
+<div class="row">
+  <div class="col-md-8">
+    {% if media.file %}
+    {% video_player media %}
+    {% endif %}
+    {% if not in_situ %}
+    {% if media.work %}
+    <div style="color:#EE6326">{% trans "Contenus numériques consultables dans leur intégralité au sein de la Médiathèque de l'Ircam" %}
+    </div>
+    {% endif %}
+    {% endif %}
+    {% if media.archive.tags %}
+    <p>
+      {% for tag in media.archive.tags.all %}
+      <a class="badge" href="{% url 'haystack_search' %}?q={{ tag }}">{{ tag }}</a>
+      {% endfor %}
+    </p>
+    {% endif %}
+  </div>
+  <div class="col-md-4">
+    <div class="well">
+      {% if media.archive.event %}
+      <h5>{{ media.archive.event.event_type.get_ancestors.0.label }}</h5>
+      {% endif %}
+
+      <ul>
+        {% if media.archive.set %}
+        <li>
+          {% trans 'Set' %} <a href="{% url 'haystack_search' %}?&sets={{ media.archive.set.id }}">{{ media.archive.set }}</a>
+        </li>
+        {% endif %}
+
+        {% if media.archive.event %}
+        <li><i>{% if media.archive.event.get_ancestors %}
+          {{ media.archive.event.get_ancestors|tree_path:" > " }} >
+          {% endif %}
+          {{ media.archive.event }} {% if media.archive.event.subtitle %}: {{ media.archive.event.subtitle }}{% endif %}</i>
+        </li>
+        {% if media.archive.date %}
+        <li>
+          {{ media.archive.date }}
+        </li>
+        {% endif %}
+        {% if media.archive.place %}
+        <li>
+         {{ media.archive.place.name }}
+       </li>
+       {% endif %}
+       {% if media.archive.event.programs %}
+       <li>{% trans "Program note" %}: {% for program_note in media.archive.event.programs %}
+        <a href="{{ program_note.program_wm }}">{{ program_note }}</a>
+        {% endfor %}
+      </li>
+      {% endif %}
+      {% endif %}
+    </ul>
+
+    {% if media.work.composers.all %}
+    <h5>{% trans "Œuvre de" %}</h5>
+    <ul>
+      {% for composer in media.work.composer_set.all %}
+      <li>{{ composer }} {% if composer.role %}({{ composer.role }}){% endif %}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% if media.participant_set.all or media.mediacollectivity_set.all %}
+    <h5>{% trans "Participants" %}</h5>
+    <ul>
+      {% for participant in media.participant_set.all %}
+      <li>
+        {{ participant.person.first_name }} {{ participant.person.last_name }} {% if participant.role.all %}({{ participant.role.all|join:', ' }}){% endif %}
+      </li>
+      {% endfor %}
+      {% for collectivity in media.mediacollectivity_set.all %}
+      <li>{{ collectivity.collectivity.name }} {% if collectivity.role.all %}({{ collectivity.role.all|join:', '  }}){% endif %}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% if media.slideshow %}
+     <h5><a href="{{ media.slideshow.url }}">{% trans "Consulter le support de présentation" %}</a></h5>
+    {% endif %}
+  </div>
+</div>
+</div>
+
+<ul class="nav nav-tabs">
+  <li class="active"><a href="#about" data-toggle="tab">About</a></li>
+  <li><a href="#share" data-toggle="tab">Share</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane active" id="about">
+  {% if media.summary %}
+  {{ media.summary|linebreaks }}
+  {% endif %}
+
+  {% if media.comments %}
+  {{ media.comments|linebreaks }}
+  {% endif %}
+  </div>
+  <div class="tab-pane" id="share">
+    <div class="form-group">
+      <label for="permalink">{% trans "Permalink" %}</label>
+    <input readonly id="permalink" class="form-control" style="background-color:white;cursor: text;" value="http://{{ site }}/embed/media/{{ media.slug }}" frameborder="0" allowfullscreen />
+    </div>
+    <div class="form-group">
+    <label for="permalink">{% trans "Copy the integration code" %}</label>
+    <textarea readonly class="form-control" style="background-color:white;cursor: text; resize:none;"><iframe width="480" height="360" src="http://{{ site }}/embed/media/{{ media.slug }}" frameborder="0" allowfullscreen></iframe></textarea>
+    </div>
+    <script>
+    $(document).ready(function() {
+      $("#share textarea, #share input").on("focus", function(event) {
+        event.preventDefault();
+        setTimeout(function() { $(event.target).select(); }, 1);
+      });
+    });
+    </script>
+  </div>
+</div>
+
+
+{% if media.archive and other_archive_medias %}
+<h4>{{ media.archive }} {% if media.archive.subtitle %}<small>{{ media.archive.subtitle }}</small>{% endif %}</h4>
+
+{% if media.archive.summary %}
+{{ media.archive.summary|linebreaks }}
+{% endif %}
+
+{% if media.archive.comments %}
+{{ media.archive.comments|linebreaks }}
+{% endif %}
+
+{% if other_archive_medias %}
+
+<h5>{% trans "From the same archive" %}</h5>
+
+{% for media in other_archive_medias %}
+
+<div class="media">
+  <a class="pull-left" href="{% url 'detail' media.slug %}" {% if media.slug == slug %}class="text-muted"{% endif %}>
+    {% if media.thumbnail %}
+    <img src="{% thumbnail media.thumbnail 64 64 %}" class="img-polaroid">
+    {% else %}
+    {% if media.media_type == "audio" %}
+    <i class="glyphicon glyphicon-volume-up"></i>
+    {% else %}
+    <i class="glyphicon glyphicon-film"></i>
+    {% endif %}
+    {% endif %}
+  </a>
+  <div class="media-body">
+    <h4 class="media-heading"><a href="{% url 'detail' media.slug %}" {% if media.slug == slug %}class="text-muted"{% endif %}>{{ media }}</a>
+      {% include "archives/duration.html" with duration=media.duration only %}
+    </h4>
+  </div>
+</div>
+
+{% endfor %}
+
+
+{% endif %}
+
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% load i18n highlight ressources_extras pagination_utils remove_facet %}
+
+{% block title %}{% trans "Search Audio/Video" %} - {{ block.super }}{% endblock %}
+
+{% block head %}
+  {{ block.super }}
+  <script type="text/javascript">
+  $( document ).ready(function() {
+    $('#id_date_order').change(function(evt){
+      $(this).closest('form').trigger('submit');
+    })
+  });
+  </script>
+{% endblock %}
+
+{% block content %}
+
+<style>
+.highlighted {
+  color:#880000;
+}
+</style>
+
+<div id="main" class="container">
+
+  <form method="GET" action="." >
+    <div class="input-group">
+      {{ form.q }}
+      <span class="input-group-btn">
+        <button type="submit" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
+      </span>
+    </div>
+    <br />
+    <div class="row">
+      <div class="col-md-8">
+
+        {% if query or page.object_list %}
+        <h2>{% trans "Results" %}</h2>
+
+        <p>
+          {% blocktrans with length=page.object_list|length count=page.paginator.count number=page.number num_pages=page.paginator.num_pages  %}
+          {{ length }} of {{ count }} results, page {{ number }} / {{ num_pages }}
+          {% endblocktrans %}
+        </p>
+
+        {% for result in page.object_list %}
+
+        <div class="media">
+          <a class="pull-left" href="{{ result.object.get_absolute_url }}">
+            {% if result.object.thumbnail %}
+            <img src="{% thumbnail result.object.thumbnail 64 64 %}" class="img-polaroid">
+            {% else %}
+            {% if result.object.media_type == "audio" %}
+            <i class="glyphicon glyphicon-volume-up"></i>
+            {% else %}
+            <i class="glyphicon glyphicon-film"></i>
+            {% endif %}
+            {% endif %}
+          </a>
+          <div class="media-body">
+            <h4 class="media-heading"><a href="{{ result.object.get_absolute_url }}">{{ result.object }}</a>
+              {% include "archives/duration.html" with duration=result.object.duration only %}
+            </h4>
+            <div>
+              {% if result.object.archive.set %}
+              <a href="{% url 'haystack_search' %}?q=&selected_facets=set_exact:{{ result.object.archive.set.label|urlencode }}" class="btn btn-default btn-xs" >{{ result.object.archive.set }}</a>
+              {% endif %}
+              {% if result.object.archive.date %}&nbsp;{{ result.object.archive.date }}
+              {% endif %}
+              {% if form.q.value %}
+              {% if result.object.summary %}
+              <br />
+              {% highlight result.object.summary with form.q.value %}
+              {% endif %}
+              {% if result.object.comments %}
+              <br />
+              {% highlight result.object.comments with form.q.value %}
+              {% endif %}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <p>No results found.</p>
+        {% endfor %}
+        {% if page.paginator.num_pages > 1 %}
+        {% result_pagination page %}
+        {% endif %}
+        {% else %}
+        {# Show some example queries to run, maybe query syntax, something else? #}
+        {% endif %}
+
+      </div>
+      <div class="col-md-4">
+        <div class="well filter-form">
+
+<div id="reset-filters">
+    {% if filters %}
+    <strong>{% trans "Active Filters" %}</strong>
+    <ul>
+    {% for facet, value in filters %}
+        <li><a class="facet_removal" href="{% remove_facet request value %}">
+          <i class="glyphicon glyphicon-remove-circle"></i>
+        </a>
+        {# ulgy #}
+        {% if facet != 'Is Sound ' %}
+        {#{{ facet }}:  #}{{ value }}
+        {% else %}
+          {% if value == 'true' %}
+            Performance
+          {% else %}
+            Talk
+          {% endif %}
+        {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+    <a href="{{ request.path }}{% if query %}?q={{ query }}{% endif %}">{% trans "Reset all filters" %}</a>
+    <hr />
+    {% endif %}
+</div>
+
+
+            {% if facets.fields.event_type %}
+                <h4>{% trans "Event types" %}</h4>
+                <ul>
+                {% for event_type in facets.fields.event_type %}
+                    <li>
+                      {% if facets.fields.event_type|length > 1 %}
+                      <a href="?q={{ query }}&{{ filters_query_string }}&selected_facets=event_type_exact:{{ event_type.0|urlencode }}">
+                      {% endif %}
+                        {{ event_type.0 }}
+                      {% if facets.fields.event_type|length > 1 %}
+                      </a>
+                      {% endif %}
+                      ({{ event_type.1 }})
+                    </li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if facets.fields.set %}
+                <h4>{% trans "Sets" %}</h4>
+                <ul>
+                {% for set in facets.fields.set %}
+                    <li>
+                      {% if facets.fields.set|length > 1 %}
+                      <a href="?q={{ query }}&{{ filters_query_string }}&selected_facets=set_exact:{{ set.0|urlencode }}">
+                      {% endif %}
+                        {{ set.0 }}
+                      {% if facets.fields.set|length > 1 %}
+                      </a>
+                      {% endif %}
+                      ({{ set.1 }})
+                    </li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if facets.fields.media_type %}
+                <h4>{% trans "Media type" %}</h4>
+                <ul>
+                {% for media_type in facets.fields.media_type %}
+                    <li>
+                      {% if facets.fields.media_type|length > 1 %}
+                      <a href="?q={{ query }}&{{ filters_query_string }}&selected_facets=media_type_exact:{{ media_type.0|urlencode }}">
+                      {% endif %}
+                        {{ media_type.0 }}
+                      {% if facets.fields.media_type|length > 1 %}
+                      </a>
+                      {% endif %}
+                      ({{ media_type.1 }})
+                    </li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if facets.fields.is_sound %}
+                <h4>{% trans "Performance or talk" %}</h4>
+                <ul>
+                {% for is_sound in facets.fields.is_sound %}
+                    <li>
+                      {% if facets.fields.is_sound|length > 1 %}
+                      <a href="?q={{ query }}&{{ filters_query_string }}&selected_facets=is_sound_exact:{{ is_sound.0|urlencode }}">
+                      {% endif %}
+                        {% if is_sound.0 == 'true' %}
+                        {% trans "Performance" %}
+                        {% else %}
+                        {% trans "Talk" %}
+                        {% endif %}
+                      {% if facets.fields.is_sound|length > 1 %}
+                      </a>
+                      {% endif %}
+                      ({{ is_sound.1 }})
+                    </li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if facets.fields.year %}
+                <h4>{% trans "Year" %}</h4>
+                <ul>
+                {% for year in facets.fields.year %}
+                    <li>
+                      {% if facets.fields.year|length > 1 %}
+                      <a href="?q={{ query }}&{{ filters_query_string }}&selected_facets=year_exact:{{ year.0|urlencode }}">
+                      {% endif %}
+                        {{ year.0 }}
+                      {% if facets.fields.year|length > 1 %}
+                      </a>
+                      {% endif %}
+
+                      ({{ year.1 }})
+                    </li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+
+          {% for field in form %}
+          {% if field.html_name != 'q' %}
+          <div class="form-group">
+            {% if field.is_hidden %}
+            {% else %}
+            {{ field.errors }}
+            {{ field.label_tag }}
+            {% endif %}
+            {{ field }}
+          </div>
+          {% endif %}
+          {% endfor %}
+          {% for facet in form.selected_facets %}
+            <input type="hidden" name="selected_facets" value="{{ facet }}" />
+          {% endfor %}
+          {% comment %}
+          <input class="btn btn-block btn-default" type="submit" value="{% trans 'Filter' %}">
+          {% endcomment %}
+        </div>
+      </div>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

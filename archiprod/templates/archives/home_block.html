@@ -1,0 +1,41 @@
+{% load i18n ressources_extras %}
+
+<h3>{{ media.bloc_title }}</h3>
+<div class="well">
+
+	<div class="media">
+		<h4 class="media-heading">
+			<a href="{% url 'detail' media.slug %}">{{ media }}</a> {% if media.archive.date %}<small>{{ media.archive.date }}</small>{% endif %} {% include "archives/duration.html" with duration=media.duration only %}
+		</h4>
+		<a class="pull-left" href="{% url 'detail' media.slug %}">
+			{% if media.thumbnail %}
+			<img src="{% thumbnail media.thumbnail 64 64 %}" class="img-polaroid">
+			{% else %}
+			{% if media.media_type == "audio" %}
+			<i class="glyphicon glyphicon-volume-up"></i>
+			{% else %}
+			<i class="glyphicon glyphicon-film"></i>
+			{% endif %}
+			{% endif %}
+		</a>
+		<div class="media-body">
+				{% if media.summary %}
+				{{ media.summary|truncatewords_html:40 }}
+				{% else %}
+				{{ media.archive.place.name }}
+				<ul>
+					{% for participant in media.participant_set.all %}
+					<li>
+						{{ participant.person.first_name }} {{ participant.person.last_name }} {% if participant.role %}({{ participant.role.all|join:", " }}){% endif %}
+					</li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+		</div>
+	</div>
+{% if media.see_others %}
+<a class="btn btn-info" href="{% url 'haystack_search' %}?q=&{{ media.see_others }}">
+	{% trans "See more" %} {{ media.bloc_title|lower }}&nbsp;&nbsp;
+</a>
+{% endif %}
+</div>
